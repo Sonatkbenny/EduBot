@@ -1,0 +1,144 @@
+{
+  "IoT": {
+    "question_hashes": [
+      "2724d19afc86f3bc474978fbe9cbbedb",
+      "ecb2f1965a991949ffc8fcae8969f3e7",
+      "1b3fa66223415d82ec0ff2d8abc94394",
+      "4dc006462b5bcaade133179433ea2d1a",
+      "2ad1ee95577784e36cc58bbabfa1e606",
+      "cf2bb244d5a6af721c1c1d649b17f557",
+      "9a3eef74d871da14a3ac73a4018ac461",
+      "8a7812ad6100a9440c027f5f675b6e85",
+      "443f1bc3b962eb728c5ba8d39113afc1",
+      "5a5dd9b24e10ce26e0beaca2ff8e2b01",
+      "5fcecaf7a0729802a572d4c9f88aceda",
+      "df63829c16ccfd14e7532b2dc84a7ab7",
+      "a62b06d6c46a9095a6f90cc471c18968",
+      "510f8b976e9999e746a507e96d2fd5aa",
+      "3e7aafe4deca5adb347009574e271bfd",
+      "9459b734657d5925cf34a9c42e84fd6c",
+      "ad89cf77ee1b6453260aa7340181d30b",
+      "f70d081ed9f2629c919282befff77ce1",
+      "3cbb6e0a3895b4f840ff0bc9a1a7b3a8",
+      "7dbcaa8c466900d13af833af8c283695",
+      "3bd1897c458f58ab0380a2492eff57b5"
+    ],
+    "question_count": 21,
+    "last_updated": "2025-09-04T01:51:54.752314",
+    "total_questions_served": 21,
+    "quiz_results": [
+      {
+        "timestamp": "2025-09-04T01:20:22.354166",
+        "score": 2,
+        "total_questions": 5,
+        "correct_answers": 2,
+        "percentage": 40.0,
+        "quiz_type": "multiple_choice"
+      }
+    ]
+  },
+  "NLP": {
+    "question_hashes": [
+      "9c41076737c0f57406b7fac203113b6d",
+      "5552e32e0d1eb5fe894663aaffdbdcf7",
+      "d9a594677724e98edbd4a4c58a38a043",
+      "da4452181efaf2fa5a6cbbc82e4a11ef",
+      "5ad408cbdab1d277e68139901f5f2499",
+      "56f9b099b49ee905c08cbaf14bb8bfc7",
+      "6ab5985528a90287038c0e586eb0d600",
+      "2494cba3e47f68818db037a66d8da82f",
+      "0f4bf59b4e34ae6a9b7552dc757ad18c",
+      "80916a2862fb6df13d09693208182106",
+      "0a6532591916c253e6ee963676fb13e1",
+      "656bad2fc12b16d5269c5eb05f9292ed",
+      "6952d1346982c807d2944efd0e43ff0a",
+      "43088dcd70f20821e70a38ad9053459c",
+      "401cf32d2cec4f12a0bec1b1e7467ebd",
+      "612eeb813a4ab9c0c259657f20deade6",
+      "221548bd3c4eb1d6dd5303811c2ba4a6"
+    ],
+    "question_count": 17,
+    "last_updated": "2025-09-04T01:38:29.390835",
+    "total_questions_served": 17,
+    "quiz_results": [
+      {
+        "timestamp": "2025-09-04T01:25:48.806316",
+        "score": 2,
+        "total_questions": 4,
+        "correct_answers": 2,
+        "percentage": 50.0,
+        "quiz_type": "multiple_choice"
+      }
+    ]
+  },
+  "nlp": {
+    "question_hashes": [
+      "72b010ee3808e78df062b46076c2118d",
+      "a43a42c0d1584fc1fcd4154c347106af",
+      "0447c31d5857c94164189e568bfbef33",
+      "0d95cab90da610e4cddcce283040c5ba"
+    ],
+    "question_count": 4,
+    "last_updated": "2025-09-04T01:45:20.756301",
+    "total_questions_served": 4,
+    "quiz_results": []
+  },
+  "iot": {
+    "question_hashes": [
+      "c8b3d22d0f395b2bf655d304be189d21",
+      "91a76a6c719b2109b39650e708777673",
+      "679aaece26caf77999a7e0b0b4f5b8b2",
+      "d9ee42a953a27faaf0d43f6ca3d609cd",
+      "aa6a80db29fef50bce76b087b4d54d73"
+    ],
+    "question_count": 5,
+    "last_updated": "2025-09-04T13:53:18.332333",
+    "total_questions_served": 5,
+    "quiz_results": [
+      {
+        "timestamp": "2025-09-04T13:53:18.332321",
+        "score": 0,
+        "total_questions": 5,
+        "correct_answers": 0,
+        "percentage": 0.0,
+        "quiz_type": "multiple_choice"
+      }
+    ]
+  },
+  "Archiecture of KDD": {
+    "question_hashes": [
+      "4be531b13b4fcd5f7e57dd3732c16bd3",
+      "5e978d0da4589782912e6959376ee9f5",
+      "04541a41858d602184c3a5e68745f046",
+      "ab4a7faa47e0f8763086f2222fe2bf82",
+      "b7fcce8234963e090b44eeebada82e51"
+    ],
+    "question_count": 5,
+    "last_updated": "2025-09-04T16:47:58.482679",
+    "total_questions_served": 5,
+    "quiz_results": [
+      {
+        "timestamp": "2025-09-04T16:47:58.482658",
+        "score": 0,
+        "total_questions": 5,
+        "correct_answers": 0,
+        "percentage": 0.0,
+        "quiz_type": "multiple_choice"
+      }
+    ]
+  },
+  "AI": {
+    "question_hashes": [
+      "4d7d9a7c84d6a730d409d6109c338db8",
+      "7aba472b999c8a878207d83ae601d46d",
+      "2d7554a58032711b2339d79a193ddb5b",
+      "ce5636923c65849e7bc37df938a7153e",
+      "7b1b72f9b9c70e0028dba5ebb22889ff",
+      "75329ea1f6c44e553eb2bfebf03c472d"
+    ],
+    "question_count": 6,
+    "last_updated": "2025-09-09T08:57:20.216080",
+    "total_questions_served": 6,
+    "quiz_results": []
+  }
+}

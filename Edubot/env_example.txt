@@ -1,0 +1,16 @@
+# EduBot Environment Configuration
+
+# OpenAI API Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Database Configuration
+DATABASE_URL=postgresql://username:password@localhost:5432/edubot
+
+# Model Configuration
+MODEL_CACHE_DIR=./models_cache
+
+# Application Configuration
+DEBUG=True
+LOG_LEVEL=INFO
+
+
