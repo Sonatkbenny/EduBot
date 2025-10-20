@@ -12,11 +12,792 @@ from models.summarizer import get_summarizer
 from models.quiz_generator import get_quiz_generator
 from models.recommender import get_recommender
 from models.performance import get_performance_analyzer
+from models.enhanced_performance import get_enhanced_performance_analyzer
 from utils.file_processor import get_file_processor
 from utils.data_processor import get_data_processor
+from utils.activity_tracker import track_page_visit, track_feature_usage, get_activity_tracker
+
+# Video resources mapping for quiz-based recommendations
+video_resources = {
+    "IoT": [
+        "https://www.youtube.com/watch?v=6mBO2vqLv38",
+        "https://www.youtube.com/watch?v=LlhmzVL5bm8"
+    ],
+    "Sorting Algorithms": [
+        "https://www.youtube.com/watch?v=pkkFqlG0Hds",
+        "https://www.youtube.com/watch?v=kgBjXUE_Nwc"
+    ],
+    "Neural Networks": [
+        "https://www.youtube.com/watch?v=aircAruvnKk",
+        "https://www.youtube.com/watch?v=Py4xvZxL5nE"
+    ],
+    "NLP Basics": [
+        "https://www.youtube.com/watch?v=8d2T6aWyb8Y"
+    ],
+    "Machine Learning": [
+        "https://www.youtube.com/watch?v=aircAruvnKk",
+        "https://www.youtube.com/watch?v=i_LwzRVP7bg"
+    ],
+    "Data Structures": [
+        "https://www.youtube.com/watch?v=RBSGKlAvoiM",
+        "https://www.youtube.com/watch?v=92S4zgXN17o"
+    ],
+    "Algorithms": [
+        "https://www.youtube.com/watch?v=0IAPZzGSbME",
+        "https://www.youtube.com/watch?v=fykrlqbV9wM"
+    ],
+    "Database Management": [
+        "https://www.youtube.com/watch?v=HXV3zeQKqGY",
+        "https://www.youtube.com/watch?v=7S_tz1z_5bA"
+    ],
+    "Web Development": [
+        "https://www.youtube.com/watch?v=UB1O30fR-EE",
+        "https://www.youtube.com/watch?v=PlxWf493en4"
+    ],
+    "Python Programming": [
+        "https://www.youtube.com/watch?v=_uQrJ0TkZlc",
+        "https://www.youtube.com/watch?v=rfscVS0vtbw"
+    ],
+    "Operating Systems": [
+        "https://www.youtube.com/watch?v=26QPDBe-NB8",
+        "https://www.youtube.com/watch?v=mXw9ruZaxzQ"
+    ],
+    "Computer Networks": [
+        "https://www.youtube.com/watch?v=IPvYjXCsTg8",
+        "https://www.youtube.com/watch?v=L3ZzkOTDins"
+    ]
+}
+
+def display_video_recommendations(topic, percentage):
+    """Display video recommendations for weak quiz performance"""
+    # Check if performance is weak (below 60%)
+    if percentage >= 60:
+        return
+    
+    st.markdown("---")
+    st.markdown("### 🎯 Recommended Video Tutorials to Improve")
+    
+    # Get video resources for the topic
+    videos = video_resources.get(topic, [])
+    
+    if videos:
+        # Show motivational message
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        ">
+            <h4 style="color: #e65100; margin-top: 0;">📚 Let's improve your {topic} skills!</h4>
+            <p style="color: #bf360c; margin: 10px 0; font-size: 1.1em;">
+                You scored {percentage}% in {topic}. Watch these tutorials to strengthen your understanding!
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Display video recommendations
+        for i, video_url in enumerate(videos, 1):
+            # Extract video title from URL or use default
+            video_title = f"{topic} Tutorial {i}"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+                border-radius: 15px;
+                padding: 20px;
+                margin: 15px 0;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                border: 2px solid #1976d2;
+            ">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div style="font-size: 3rem; margin-right: 15px;">🎥</div>
+                    <div style="flex-grow: 1;">
+                        <h4 style="color: #1565c0; margin: 0;">{video_title}</h4>
+                        <p style="color: #1976d2; margin: 5px 0; font-size: 0.9rem;">Educational Video Tutorial</p>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <a href="{video_url}" target="_blank" style="text-decoration: none;">
+                        <div style="
+                            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+                            color: white;
+                            padding: 12px 25px;
+                            border-radius: 30px;
+                            display: inline-block;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 1.0em;
+                            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.4);
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            border: none;
+                        " 
+                        onmouseover="this.style.transform='translateY(-2px) scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(25, 118, 210, 0.6)';" 
+                        onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 15px rgba(25, 118, 210, 0.4)';">
+                            📺 Watch Now
+                        </div>
+                    </a>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        # No specific videos available for this topic
+        youtube_search = f"https://www.youtube.com/results?search_query={topic.replace(' ', '+')}"
+        
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        ">
+            <h4 style="color: #e65100; margin-top: 0;">📚 Let's improve your {topic} skills!</h4>
+            <p style="color: #bf360c; margin: 10px 0; font-size: 1.1em;">
+                You scored {percentage}% in {topic}. Here are some video resources to help you improve!
+            </p>
+        </div>
+        
+        <div style="
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        ">
+            <div style="font-size: 3rem; margin-bottom: 15px;">🔍</div>
+            <h4 style="color: #1565c0; margin: 0 0 15px 0;">Search Video Tutorials</h4>
+            <p style="color: #1976d2; margin: 0 0 20px 0;">Find educational videos on YouTube</p>
+            <a href="{youtube_search}" target="_blank" style="text-decoration: none;">
+                <div style="
+                    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+                    color: white;
+                    padding: 12px 25px;
+                    border-radius: 30px;
+                    display: inline-block;
+                    cursor: pointer;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    🎥 Search YouTube
+                </div>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+
+# Resources mapping for Smart Learning Recommendations
+resources = {
+    "CNN": {
+        "youtube": "https://www.youtube.com/watch?v=YRhxdVk_sIs",
+        "notes": "https://cs231n.github.io/convolutional-networks/"
+    },
+    "ANN": {
+        "youtube": "https://www.youtube.com/watch?v=aircAruvnKk",
+        "notes": "https://www.coursera.org/learn/neural-networks"
+    },
+    "Sorting Algorithms": {
+        "youtube": "https://www.youtube.com/watch?v=pkkFqlG0Hds",
+        "notes": "https://www.geeksforgeeks.org/sorting-algorithms/"
+    },
+    "Data Structures": {
+        "youtube": "https://www.youtube.com/watch?v=RBSGKlAvoiM",
+        "notes": "https://www.tutorialspoint.com/data_structures_algorithms/"
+    },
+    "Machine Learning": {
+        "youtube": "https://www.youtube.com/watch?v=aircAruvnKk",
+        "notes": "https://scikit-learn.org/stable/tutorial/index.html"
+    },
+    "Database Management": {
+        "youtube": "https://www.youtube.com/watch?v=HXV3zeQKqGY",
+        "notes": "https://www.w3schools.com/sql/"
+    },
+    "Web Development": {
+        "youtube": "https://www.youtube.com/watch?v=UB1O30fR-EE",
+        "notes": "https://developer.mozilla.org/en-US/docs/Learn"
+    },
+    "Python Programming": {
+        "youtube": "https://www.youtube.com/watch?v=_uQrJ0TkZlc",
+        "notes": "https://docs.python.org/3/tutorial/"
+    },
+    "Algorithms": {
+        "youtube": "https://www.youtube.com/watch?v=0IAPZzGSbME",
+        "notes": "https://www.geeksforgeeks.org/fundamentals-of-algorithms/"
+    },
+    "Operating Systems": {
+        "youtube": "https://www.youtube.com/watch?v=26QPDBe-NB8",
+        "notes": "https://www.tutorialspoint.com/operating_system/"
+    },
+    "data preprocessing": {
+        "youtube": "https://www.youtube.com/watch?v=0xVqLJe9_CY",
+        "notes": "https://scikit-learn.org/stable/modules/preprocessing.html"
+    },
+    "Data Preprocessing": {
+        "youtube": "https://www.youtube.com/watch?v=0xVqLJe9_CY",
+        "notes": "https://scikit-learn.org/stable/modules/preprocessing.html"
+    },
+    "Statistics": {
+        "youtube": "https://www.youtube.com/watch?v=xxpc-HPKN28",
+        "notes": "https://www.khanacademy.org/math/statistics-probability"
+    },
+    "Linear Algebra": {
+        "youtube": "https://www.youtube.com/watch?v=fNk_zzaMoSs",
+        "notes": "https://www.khanacademy.org/math/linear-algebra"
+    },
+    "Calculus": {
+        "youtube": "https://www.youtube.com/watch?v=WUvTyaaNkzM",
+        "notes": "https://www.khanacademy.org/math/calculus-1"
+    },
+    "Deep Learning": {
+        "youtube": "https://www.youtube.com/watch?v=aircAruvnKk",
+        "notes": "https://www.deeplearningbook.org/"
+    },
+    "Natural Language Processing": {
+        "youtube": "https://www.youtube.com/watch?v=8rXD5-xhemo",
+        "notes": "https://www.nltk.org/book/"
+    },
+    "NLP": {
+        "youtube": "https://www.youtube.com/watch?v=8rXD5-xhemo",
+        "notes": "https://www.nltk.org/book/"
+    },
+    "Computer Vision": {
+        "youtube": "https://www.youtube.com/watch?v=2-Ol7ZB0MmU",
+        "notes": "https://opencv.org/university/"
+    },
+    "Software Engineering": {
+        "youtube": "https://www.youtube.com/watch?v=LbmQkq3DmHs",
+        "notes": "https://www.geeksforgeeks.org/software-engineering/"
+    },
+    "Object Oriented Programming": {
+        "youtube": "https://www.youtube.com/watch?v=pTB0EiLXUC8",
+        "notes": "https://www.tutorialspoint.com/object_oriented_analysis_design/"
+    },
+    "OOP": {
+        "youtube": "https://www.youtube.com/watch?v=pTB0EiLXUC8",
+        "notes": "https://www.tutorialspoint.com/object_oriented_analysis_design/"
+    },
+    "Data Science": {
+        "youtube": "https://www.youtube.com/watch?v=ua-CiDNNj30",
+        "notes": "https://www.kaggle.com/learn/intro-to-machine-learning"
+    },
+    "Probability": {
+        "youtube": "https://www.youtube.com/watch?v=OyddY7DlV58",
+        "notes": "https://www.khanacademy.org/math/statistics-probability/probability-library"
+    },
+    "Java": {
+        "youtube": "https://www.youtube.com/watch?v=eIrMbAQSU34",
+        "notes": "https://docs.oracle.com/javase/tutorial/"
+    },
+    "C++": {
+        "youtube": "https://www.youtube.com/watch?v=vLnPwxZdW4Y",
+        "notes": "https://www.cplusplus.com/doc/tutorial/"
+    },
+    "JavaScript": {
+        "youtube": "https://www.youtube.com/watch?v=W6NZfCO5SIk",
+        "notes": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide"
+    }
+}
+
+def display_smart_recommendations(topic, prediction):
+    """Display Smart Learning Recommendations for weak performance"""
+    if prediction != "Weak":
+        return
+        
+    st.markdown("---")
+    st.markdown("### 🎯 Smart Learning Recommendations")
+    
+    # Check if topic has resources
+    if topic in resources:
+        topic_resources = resources[topic]
+        
+        # Motivational message
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        ">
+            <h4 style="color: #e65100; margin-top: 0;">🚀 Let's improve your {topic} skills!</h4>
+            <p style="color: #bf360c; margin: 10px 0; font-size: 1.1em;">
+                You seem weak in <strong>{topic}</strong>. Watch this tutorial and check out the study materials to improve!
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Resource cards (only YouTube and Study Material)
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                margin: 10px 0;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🎥</div>
+                <h4 style="color: #c2185b; margin: 10px 0;">Video Tutorial</h4>
+                <p style="color: #d81b60; font-size: 0.9rem;">Watch and learn</p>
+                <a href="{topic_resources['youtube']}" target="_blank" style="text-decoration: none;">
+                    <div style="
+                        background: #d81b60;
+                        color: white;
+                        padding: 10px 15px;
+                        border-radius: 25px;
+                        margin-top: 15px;
+                        cursor: pointer;
+                        transition: transform 0.2s;
+                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        Watch Video
+                    </div>
+                </a>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                margin: 10px 0;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 10px;">📚</div>
+                <h4 style="color: #388e3c; margin: 10px 0;">Study Material</h4>
+                <p style="color: #43a047; font-size: 0.9rem;">Read and understand</p>
+                <a href="{topic_resources['notes']}" target="_blank" style="text-decoration: none;">
+                    <div style="
+                        background: #43a047;
+                        color: white;
+                        padding: 10px 15px;
+                        border-radius: 25px;
+                        margin-top: 15px;
+                        cursor: pointer;
+                        transition: transform 0.2s;
+                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        Read Notes
+                    </div>
+                </a>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        # Generic resources for topics not in our dictionary
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        ">
+            <h4 style="color: #e65100; margin-top: 0;">🚀 Let's improve your {topic} skills!</h4>
+            <p style="color: #bf360c; margin: 10px 0; font-size: 1.1em;">
+                You seem weak in <strong>{topic}</strong>. Here are some general resources to help you improve!
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Generic resource cards for unknown topics
+        col1, col2 = st.columns(2)
+        
+        # Create search URLs for the specific topic
+        youtube_search = f"https://www.youtube.com/results?search_query={topic.replace(' ', '+')}"
+        google_search = f"https://www.google.com/search?q={topic.replace(' ', '+')}+tutorial+learn"
+        
+        with col1:
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                margin: 10px 0;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🎥</div>
+                <h4 style="color: #c2185b; margin: 10px 0;">Search Videos</h4>
+                <p style="color: #d81b60; font-size: 0.9rem;">Find YouTube tutorials</p>
+                <a href="{youtube_search}" target="_blank" style="text-decoration: none;">
+                    <div style="
+                        background: #d81b60;
+                        color: white;
+                        padding: 10px 15px;
+                        border-radius: 25px;
+                        margin-top: 15px;
+                        cursor: pointer;
+                        transition: transform 0.2s;
+                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        Search YouTube
+                    </div>
+                </a>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                margin: 10px 0;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 10px;">📚</div>
+                <h4 style="color: #388e3c; margin: 10px 0;">Search Materials</h4>
+                <p style="color: #43a047; font-size: 0.9rem;">Find study resources</p>
+                <a href="{google_search}" target="_blank" style="text-decoration: none;">
+                    <div style="
+                        background: #43a047;
+                        color: white;
+                        padding: 10px 15px;
+                        border-radius: 25px;
+                        margin-top: 15px;
+                        cursor: pointer;
+                        transition: transform 0.2s;
+                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        Search Google
+                    </div>
+                </a>
+            </div>
+            """, unsafe_allow_html=True)
+
+# Topic resources mapping for personalized recommendations
+TOPIC_RESOURCES = {
+    "CNN": {
+        "quiz_link": "https://www.kaggle.com/learn/intro-to-deep-learning",
+        "video_link": "https://www.youtube.com/watch?v=YRhxdVk_sIs",
+        "study_material": "https://cs231n.github.io/convolutional-networks/",
+        "description": "Master Convolutional Neural Networks for image recognition and computer vision"
+    },
+    "AI": {
+        "quiz_link": "https://www.kaggle.com/learn/intro-to-machine-learning",
+        "video_link": "https://www.youtube.com/watch?v=aircAruvnKk",
+        "study_material": "https://www.coursera.org/learn/machine-learning",
+        "description": "Learn fundamental AI concepts and machine learning algorithms"
+    },
+    "Sorting Algorithms": {
+        "quiz_link": "https://www.geeksforgeeks.org/quiz-corner-gq/",
+        "video_link": "https://www.youtube.com/watch?v=kPRA0W1kECg",
+        "study_material": "https://www.geeksforgeeks.org/sorting-algorithms/",
+        "description": "Master different sorting techniques like QuickSort, MergeSort, and BubbleSort"
+    },
+    "Data Structures": {
+        "quiz_link": "https://www.hackerrank.com/domains/data-structures",
+        "video_link": "https://www.youtube.com/watch?v=RBSGKlAvoiM",
+        "study_material": "https://www.tutorialspoint.com/data_structures_algorithms/",
+        "description": "Understand arrays, linked lists, stacks, queues, and trees"
+    },
+    "Machine Learning": {
+        "quiz_link": "https://www.kaggle.com/learn",
+        "video_link": "https://www.youtube.com/watch?v=aircAruvnKk",
+        "study_material": "https://scikit-learn.org/stable/tutorial/index.html",
+        "description": "Learn supervised, unsupervised, and reinforcement learning concepts"
+    },
+    "Database Management": {
+        "quiz_link": "https://www.w3schools.com/sql/sql_quiz.asp",
+        "video_link": "https://www.youtube.com/watch?v=HXV3zeQKqGY",
+        "study_material": "https://www.w3schools.com/sql/",
+        "description": "Master SQL queries, database design, and normalization"
+    },
+    "Web Development": {
+        "quiz_link": "https://www.w3schools.com/html/html_quiz.asp",
+        "video_link": "https://www.youtube.com/watch?v=UB1O30fR-EE",
+        "study_material": "https://developer.mozilla.org/en-US/docs/Learn",
+        "description": "Build modern web applications with HTML, CSS, JavaScript, and frameworks"
+    },
+    "Python Programming": {
+        "quiz_link": "https://www.w3schools.com/python/python_quiz.asp",
+        "video_link": "https://www.youtube.com/watch?v=_uQrJ0TkZlc",
+        "study_material": "https://docs.python.org/3/tutorial/",
+        "description": "Learn Python fundamentals, OOP, and advanced concepts"
+    }
+}
+
+def analyze_weak_topics(performance_data):
+    """Analyze performance data and identify weak topics (< 60%)"""
+    import pandas as pd
+    
+    if not performance_data:
+        return {}
+    
+    # Convert to DataFrame for analysis
+    df = pd.DataFrame(performance_data)
+    df['percentage'] = (df['score'] / df['total_marks']) * 100
+    
+    # Group by topic and calculate averages
+    topic_averages = df.groupby('topic')['percentage'].mean().to_dict()
+    
+    # Identify weak topics (< 60%)
+    weak_topics = {topic: avg for topic, avg in topic_averages.items() if avg < 60}
+    
+    return weak_topics
+
+def generate_topic_recommendations(weak_topics):
+    """Generate personalized recommendations for weak topics"""
+    recommendations = []
+    
+    if not weak_topics:
+        return [{
+            "type": "success",
+            "title": "🎉 Excellent Performance!",
+            "message": "You're performing well across all topics! Keep up the great work and consider exploring advanced topics.",
+            "action": "Continue practicing to maintain your strong performance!"
+        }]
+    
+    # Sort weak topics by score (lowest first)
+    sorted_weak = sorted(weak_topics.items(), key=lambda x: x[1])
+    
+    for topic, score in sorted_weak:
+        # Get resources for this topic
+        resources = TOPIC_RESOURCES.get(topic, {
+            "quiz_link": "https://www.khanacademy.org/",
+            "video_link": "https://www.youtube.com/",
+            "study_material": f"https://www.google.com/search?q={topic.replace(' ', '+')}",
+            "description": f"Practice and improve your understanding of {topic}"
+        })
+        
+        # Create motivational message based on score
+        if score < 30:
+            motivation = f"Don't worry about {topic}! Everyone starts somewhere. These resources will help you build a strong foundation."
+            urgency = "🔴 High Priority"
+            color = "#ff4444"
+        elif score < 45:
+            motivation = f"You're making progress in {topic}! With focused practice, you'll see significant improvement."
+            urgency = "🟡 Medium Priority"
+            color = "#ffaa00"
+        else:
+            motivation = f"You're close to mastering {topic}! Just a little more practice will get you there."
+            urgency = "🟢 Low Priority"
+            color = "#44ff44"
+        
+        recommendation = {
+            "type": "improvement",
+            "topic": topic,
+            "current_score": f"{score:.1f}%",
+            "urgency": urgency,
+            "color": color,
+            "motivation": motivation,
+            "quiz_link": resources["quiz_link"],
+            "video_link": resources["video_link"],
+            "study_material": resources["study_material"],
+            "description": resources["description"]
+        }
+        
+        recommendations.append(recommendation)
+    
+    return recommendations
+
+def display_recommendation_card(recommendation):
+    """Display a styled recommendation card"""
+    if recommendation["type"] == "success":
+        st.success(f"""
+        ### {recommendation['title']}
+        {recommendation['message']}
+        
+        **{recommendation['action']}**
+        """)
+        return
+    
+    # Main recommendation card
+    topic = recommendation['topic']
+    score = recommendation['current_score']
+    urgency = recommendation['urgency']
+    motivation = recommendation['motivation']
+    color = recommendation['color']
+    
+    # Create attractive card with colored border
+    card_html = f"""
+    <div style="
+        border-left: 6px solid {color};
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        padding: 25px;
+        margin: 20px 0;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+    ">
+        <h3 style="color: #2c3e50; margin-top: 0; font-weight: 700; font-size: 1.4em;">📚 {topic}</h3>
+        <div style="display: flex; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <span style="
+                background: {color}; 
+                color: white; 
+                padding: 8px 16px; 
+                border-radius: 25px; 
+                font-size: 0.85em; 
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            ">
+                {urgency}
+            </span>
+            <span style="
+                background: #6c757d; 
+                color: white; 
+                padding: 8px 16px; 
+                border-radius: 25px; 
+                font-size: 0.85em; 
+                font-weight: 600;
+            ">
+                Current Score: {score}
+            </span>
+        </div>
+        <div style="
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px;
+            border: 1px solid #90caf9;
+        ">
+            <p style="
+                color: #1565c0; 
+                font-style: italic; 
+                margin: 0; 
+                font-size: 1.1em;
+                line-height: 1.6;
+                font-weight: 500;
+            ">
+                💡 {motivation}
+            </p>
+        </div>
+        <p style="
+            color: #495057; 
+            margin-bottom: 25px; 
+            font-size: 1.0em;
+            line-height: 1.5;
+        ">
+            {recommendation['description']}
+        </p>
+    </div>
+    """
+    
+    st.markdown(card_html, unsafe_allow_html=True)
+    
+    # Action buttons
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown(f"""
+        <a href="{recommendation['quiz_link']}" target="_blank" style="text-decoration: none;">
+            <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 14px 20px;
+                border-radius: 30px;
+                text-align: center;
+                margin: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.95em;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: none;
+            " 
+            onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.5)';" 
+            onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';">
+                🧠 Take Quiz
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <a href="{recommendation['video_link']}" target="_blank" style="text-decoration: none;">
+            <div style="
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                padding: 14px 20px;
+                border-radius: 30px;
+                text-align: center;
+                margin: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.95em;
+                box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: none;
+            " 
+            onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(240, 147, 251, 0.5)';" 
+            onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 15px rgba(240, 147, 251, 0.4)';">
+                🎥 Watch Tutorial
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown(f"""
+        <a href="{recommendation['study_material']}" target="_blank" style="text-decoration: none;">
+            <div style="
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                color: white;
+                padding: 14px 20px;
+                border-radius: 30px;
+                text-align: center;
+                margin: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.95em;
+                box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: none;
+            " 
+            onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(79, 172, 254, 0.5)';" 
+            onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 15px rgba(79, 172, 254, 0.4)';">
+                📖 Study Notes
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+    
+    # Add separator
+    st.markdown("""
+    <div style="margin: 35px 0;">
+        <div style="height: 2px; background: linear-gradient(90deg, transparent 0%, #e9ecef 50%, transparent 100%); border-radius: 2px;"></div>
+    </div>
+    """, unsafe_allow_html=True)
+
+def display_personalized_recommendations(performance_data):
+    """Main function to analyze performance and display personalized recommendations"""
+    if not performance_data:
+        st.info("📊 Add some performance data to see personalized recommendations!")
+        return
+    
+    # Analyze weak topics
+    weak_topics = analyze_weak_topics(performance_data)
+    
+    # Display metrics
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("📊 Total Topics", len(set([p['topic'] for p in performance_data])))
+    with col2:
+        st.metric("❌ Weak Topics", len(weak_topics))
+    with col3:
+        avg_score = sum([p.get('percentage', (p['score']/p['total_marks'])*100) for p in performance_data]) / len(performance_data)
+        st.metric("📈 Average Score", f"{avg_score:.1f}%")
+    
+    # Show status message
+    if weak_topics:
+        st.warning(f"📌 Found {len(weak_topics)} topics that need improvement (score < 60%)")
+    else:
+        st.success("🎉 Great job! You're performing well in all topics!")
+    
+    # Generate and display recommendations
+    recommendations = generate_topic_recommendations(weak_topics)
+    
+    for recommendation in recommendations:
+        display_recommendation_card(recommendation)
 
 def home_page():
     """Home page with overview and quick actions"""
+    # Track page visit
+    track_page_visit("Home", "Accessed home page and dashboard")
+    
     create_header("Welcome to EduBot", "Your AI-Powered Learning Assistant")
     
     # Overview section
@@ -80,6 +861,9 @@ def home_page():
 
 def summarization_page():
     """Text summarization page"""
+    # Track page visit
+    track_page_visit("Text Summarization", "Accessed text summarization feature")
+    
     create_header("Text Summarization", "Transform your notes into concise summaries")
     
     # File upload section
@@ -132,6 +916,15 @@ def summarization_page():
                         }
                         st.session_state.summaries.append(summary_data)
                         
+                        # Track document processing activity
+                        activity_tracker = get_activity_tracker()
+                        activity_tracker.log_document_processing({
+                            'document_name': processed_file['filename'],
+                            'document_size': len(processed_file['cleaned_text']),
+                            'processing_time': 5,  # Approximate time
+                            'summary_length': len(summary)
+                        })
+                        
                         # Display summary
                         create_summary_card(
                             processed_file['cleaned_text'],
@@ -150,6 +943,9 @@ def summarization_page():
 
 def quiz_page():
     """Interactive quiz generation and taking page"""
+    # Track page visit
+    track_page_visit("Quiz Generation", "Accessed quiz generation and taking feature")
+    
     create_header("Quiz Generation", "Create and take personalized quizzes for better learning")
     
     # Question History Management Section
@@ -305,6 +1101,9 @@ def quiz_page():
 
 def performance_page():
     """Performance analysis page"""
+    # Track page visit
+    track_page_visit("Performance Analysis", "Accessed performance analysis and tracking")
+    
     create_header("Performance Analysis", "Track and analyze your academic progress")
     
     # Load existing performance history (DB first, then session fallback)
@@ -350,6 +1149,9 @@ def performance_page():
             
             if prediction != "Unknown - Need score data for accurate prediction":
                 st.info(f"📈 Performance prediction for {new_entry['subject']} - {new_entry['topic']}: **{prediction}**")
+                
+                # Display Smart Learning Recommendations if prediction is Weak
+                display_smart_recommendations(new_entry['topic'], prediction)
             else:
                 st.warning("Please enter valid score data for a more accurate prediction")
     
@@ -480,11 +1282,23 @@ def performance_page():
                         st.markdown(f"• {rec}")
             else:
                 create_error_message(report['error'])
-        else:
-            create_warning_message("Add at least 3 entries for trend/graph analysis. Per-entry predictions are shown above.")
+        
+        # Enhanced Personalized Recommendations Section
+        st.markdown("---")
+        st.markdown("### 🎯 Personalized Learning Recommendations")
+        st.markdown("*Get customized study resources based on your weak topics (score < 60%)*")
+        
+        # Analyze weak topics and generate recommendations
+        display_personalized_recommendations(combined)
+        
+    else:
+        create_warning_message("Add at least 3 entries for trend/graph analysis. Per-entry predictions are shown above.")
 
 def recommendations_page():
     """Enhanced Recommendations page with preferences, filtering, and history"""
+    # Track page visit
+    track_page_visit("Recommendations", "Accessed learning recommendations feature")
+    
     create_header("Learning Recommendations", "Get personalized educational resources")
 
     # Preferences Section
@@ -593,6 +1407,18 @@ def recommendations_page():
                 else:
                     for res in flat[:12]:
                         create_recommendation_card(res)
+                    
+                    # Track recommendation viewing activity
+                    try:
+                        activity_tracker = get_activity_tracker()
+                        activity_tracker.log_recommendation_view({
+                            'topic': ', '.join(profile.get('interests', []) + profile.get('weak_topics', [])),
+                            'count': len(flat[:12]),
+                            'learning_style': profile.get('learning_style', 'All')
+                        })
+                    except Exception as e:
+                        print(f"Error tracking recommendation activity: {e}")
+                        
                 create_success_message("Recommendations generated successfully!")
                 # Save recommendation history to DB (best-effort) and session fallback
                 saved_to_db = False

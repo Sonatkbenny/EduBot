@@ -153,6 +153,22 @@ def create_quiz_submission_section(questions: List[Dict[str, Any]], quiz_key: st
             st.session_state[f"quiz_{quiz_key}_results"] = score_result
             st.session_state[f"quiz_{quiz_key}_submitted"] = True
             
+            # Track quiz completion activity
+            try:
+                from utils.activity_tracker import get_activity_tracker
+                activity_tracker = get_activity_tracker()
+                activity_tracker.log_quiz_activity({
+                    'quiz_id': quiz_key,
+                    'topic': topic or 'Unknown',
+                    'questions_count': total_questions,
+                    'correct_answers': score_result.get('correct_answers', 0),
+                    'total_score': score_result.get('percentage', 0),
+                    'completion_time': 300,  # Approximate time
+                    'difficulty_level': 'medium'
+                })
+            except Exception as e:
+                print(f"Error tracking quiz activity: {e}")
+            
             st.success("Quiz submitted successfully!")
             st.rerun()
 
@@ -210,6 +226,17 @@ def create_quiz_results_display(score_result: Dict[str, Any], quiz_key: str = ""
             <p style="margin: 0;"><strong>Explanation:</strong> {explanation}</p>
         </div>
         """, unsafe_allow_html=True)
+    
+    # Add video recommendations for weak performance (below 60%)
+    if percentage < 60:
+        from frontend.pages import display_video_recommendations
+        # Get the topic from session state if available
+        topic = None
+        if quiz_key:
+            topic = st.session_state.get(f"quiz_{quiz_key}_topic")
+        
+        if topic:
+            display_video_recommendations(topic, percentage)
 
 def create_quiz_question_card(question: Dict[str, Any], question_number: int):
     """Create a quiz question card (legacy function for backward compatibility)"""
@@ -818,3 +845,181 @@ def create_summary_download_section(summary_data: Dict[str, Any]):
             disabled=True,
             key="summary_preview"
         )
+
+def create_enhanced_recommendation_card(recommendation: Dict[str, Any]) -> None:
+    """
+    Create an enhanced styled recommendation card with action buttons
+    
+    Args:
+        recommendation: Dictionary containing recommendation data
+    """
+    if recommendation.get("type") == "success":
+        st.success(f"""
+        ### {recommendation['title']}
+        {recommendation['message']}
+        
+        **{recommendation['action']}**
+        """)
+        return
+    
+    if recommendation.get("type") == "tips":
+        with st.expander(f"💡 {recommendation['title']}", expanded=False):
+            for tip in recommendation.get('tips', []):
+                st.write(f"• {tip}")
+        return
+    
+    # Main recommendation card
+    topic = recommendation.get('topic', 'Unknown Topic')
+    score = recommendation.get('current_score', '0%')
+    urgency = recommendation.get('urgency', '🟢 Low Priority')
+    motivation = recommendation.get('motivation', 'Keep practicing to improve!')
+    color = recommendation.get('color', '#44ff44')
+    
+    # Create attractive card with modern styling
+    card_html = f"""
+    <div style="
+        border-left: 6px solid {color};
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        padding: 25px;
+        margin: 20px 0;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+    ">
+        <h3 style="color: #2c3e50; margin-top: 0; font-weight: 700; font-size: 1.4em;">📚 {topic}</h3>
+        <div style="display: flex; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <span style="
+                background: {color}; 
+                color: white; 
+                padding: 8px 16px; 
+                border-radius: 25px; 
+                font-size: 0.85em; 
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            ">
+                {urgency}
+            </span>
+            <span style="
+                background: #6c757d; 
+                color: white; 
+                padding: 8px 16px; 
+                border-radius: 25px; 
+                font-size: 0.85em; 
+                font-weight: 600;
+            ">
+                Current Score: {score}
+            </span>
+        </div>
+        <div style="
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px;
+            border: 1px solid #90caf9;
+        ">
+            <p style="
+                color: #1565c0; 
+                font-style: italic; 
+                margin: 0; 
+                font-size: 1.1em;
+                line-height: 1.6;
+                font-weight: 500;
+            ">
+                💡 {motivation}
+            </p>
+        </div>
+        <p style="
+            color: #495057; 
+            margin-bottom: 25px; 
+            font-size: 1.0em;
+            line-height: 1.5;
+        ">
+            {recommendation.get('description', '')}
+        </p>
+    </div>
+    """
+    
+    st.markdown(card_html, unsafe_allow_html=True)
+    
+    # Action buttons with enhanced styling
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown(f"""
+        <a href="{recommendation.get('quiz_link', '#')}" target="_blank" style="text-decoration: none;">
+            <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 14px 20px;
+                border-radius: 30px;
+                text-align: center;
+                margin: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.95em;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: none;
+            " 
+            onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.5)';" 
+            onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';">
+                🧠 Take Quiz
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <a href="{recommendation.get('video_link', '#')}" target="_blank" style="text-decoration: none;">
+            <div style="
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+                padding: 14px 20px;
+                border-radius: 30px;
+                text-align: center;
+                margin: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.95em;
+                box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: none;
+            " 
+            onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(240, 147, 251, 0.5)';" 
+            onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 15px rgba(240, 147, 251, 0.4)';">
+                🎥 Watch Tutorial
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown(f"""
+        <a href="{recommendation.get('study_material', '#')}" target="_blank" style="text-decoration: none;">
+            <div style="
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                color: white;
+                padding: 14px 20px;
+                border-radius: 30px;
+                text-align: center;
+                margin: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.95em;
+                box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: none;
+            " 
+            onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(79, 172, 254, 0.5)';" 
+            onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 15px rgba(79, 172, 254, 0.4)';">
+                📖 Study Notes
+            </div>
+        </a>
+        """, unsafe_allow_html=True)
+    
+    # Add modern separator
+    st.markdown("""
+    <div style="margin: 35px 0;">
+        <div style="height: 2px; background: linear-gradient(90deg, transparent 0%, #e9ecef 50%, transparent 100%); border-radius: 2px;"></div>
+    </div>
+    """, unsafe_allow_html=True)

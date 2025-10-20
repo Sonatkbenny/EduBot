@@ -233,6 +233,14 @@ def login_page():
             # Update last login first
             user_db.update_last_login(user['id'])
             
+            # Track login activity
+            try:
+                from utils.activity_tracker import get_activity_tracker
+                activity_tracker = get_activity_tracker()
+                activity_tracker.log_login_activity(user['id'], "standard")
+            except Exception as e:
+                print(f"Error tracking login activity: {e}")
+            
             # Check if user is admin
             is_admin = user_data['is_admin']
             print(f"User is admin: {is_admin}")
@@ -473,6 +481,14 @@ def logout_confirmation():
         st.sidebar.markdown(f"🎓 {current_user['education_level']}")
         
         if st.sidebar.button("🚪 Logout", use_container_width=True):
+            # Track logout activity before logging out
+            try:
+                from utils.activity_tracker import get_activity_tracker
+                activity_tracker = get_activity_tracker()
+                activity_tracker.log_logout_activity(current_user['id'])
+            except Exception as e:
+                print(f"Error tracking logout activity: {e}")
+            
             auth_manager.logout_user()
             create_success_message("👋 You have been logged out successfully!")
             st.rerun()

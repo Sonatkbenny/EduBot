@@ -1,0 +1,43 @@
+Data_Category,Item_Name,Count,Type
+Feature Usage,Resource Recommendations,284,usage_count
+Feature Usage,Quiz Generation,273,usage_count
+Feature Usage,PDF Upload,273,usage_count
+Feature Usage,Performance Dashboard,254,usage_count
+Feature Usage,Results Review,206,usage_count
+Feature Usage,Quiz Taking,195,usage_count
+Feature Usage,Text Summarization,186,usage_count
+Feature Usage,Topic Selection,169,usage_count
+Education Distribution,Bachelor's,6,user_count
+Education Distribution,College,2,user_count
+Education Distribution,Graduate,3,user_count
+Education Distribution,High School,5,user_count
+Education Distribution,Master's,5,user_count
+Education Distribution,Other,6,user_count
+Education Distribution,PhD,3,user_count
+Education Distribution,Secondary,1,user_count
+User Registrations,2025-09-27,1,daily_registrations
+User Registrations,2025-09-29,1,daily_registrations
+User Registrations,2025-10-05,1,daily_registrations
+User Registrations,2025-10-07,1,daily_registrations
+User Registrations,2025-10-13,1,daily_registrations
+User Registrations,2025-10-15,1,daily_registrations
+User Registrations,2025-10-19,1,daily_registrations
+User Registrations,2025-10-20,1,daily_registrations
+Login Activity,2025-09-20,1,daily_logins
+Login Activity,2025-09-29,1,daily_logins
+Login Activity,2025-10-07,1,daily_logins
+Login Activity,2025-10-12,1,daily_logins
+Login Activity,2025-10-13,1,daily_logins
+Login Activity,2025-10-14,1,daily_logins
+Login Activity,2025-10-17,1,daily_logins
+Login Activity,2025-10-20,2,daily_logins
+Top Active Users,devu123,50,activity_count
+Top Active Users,devan,49,activity_count
+Top Active Users,user_007,46,activity_count
+Top Active Users,user_022,44,activity_count
+Top Active Users,user_006,42,activity_count
+Top Active Users,user_025,42,activity_count
+Top Active Users,user_005,39,activity_count
+Top Active Users,user_010,39,activity_count
+Top Active Users,user_023,39,activity_count
+Top Active Users,user_017,37,activity_count

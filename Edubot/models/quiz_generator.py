@@ -75,49 +75,38 @@ class QuizGenerator:
                 questions_text = response.choices[0].message.content
                 questions = self._parse_questions(questions_text, question_type)
             
-            # Filter out questions that have been used before
-            unique_questions = history_manager.filter_unique_questions(topic, questions)
+            # Allow unlimited quiz generation - no uniqueness filtering
+            # Students can take as many quizzes as they want on any topic
+            final_questions = questions[:num_questions] if len(questions) >= num_questions else questions
             
-            # Check if we have enough unique questions
-            if len(unique_questions) < num_questions:
-                # Try to generate more questions to fill the gap
-                needed_questions = num_questions - len(unique_questions)
+            # If we don't have enough questions, generate more
+            if len(final_questions) < num_questions:
+                needed_questions = num_questions - len(final_questions)
                 
                 if is_openai_mock_enabled():
-                    # For mock mode, create variations of existing questions
+                    # For mock mode, create additional questions
                     additional_questions = self._generate_additional_mock_questions(topic, needed_questions, question_type)
                 else:
-                    # For real API, generate additional questions with higher temperature for variety
+                    # For real API, generate additional questions
                     additional_prompt = self._create_additional_questions_prompt(topic, content, needed_questions, question_type)
                     response = self.client.chat.completions.create(
                         model=self.config['model'],
                         messages=[
-                            {"role": "system", "content": "You are an expert educational content creator. Generate unique, varied quiz questions."},
+                            {"role": "system", "content": "You are an expert educational content creator. Generate high-quality quiz questions."},
                             {"role": "user", "content": additional_prompt}
                         ],
                         max_tokens=min(300, needed_questions * 80),
-                        temperature=0.8  # Higher temperature for more variety
+                        temperature=0.8  # Higher temperature for variety
                     )
                     additional_questions = self._parse_questions(response.choices[0].message.content, question_type)
                 
-                # Filter additional questions for uniqueness
-                unique_additional = history_manager.filter_unique_questions(topic, additional_questions)
-                unique_questions.extend(unique_additional[:needed_questions])
+                # Add the additional questions
+                final_questions.extend(additional_questions[:needed_questions])
             
-            # Final check - if still not enough unique questions
-            if len(unique_questions) < num_questions:
-                topic_stats = history_manager.get_topic_stats(topic)
-                return [{
-                    "error": f"Not enough unique questions available for '{topic}'. "
-                           f"Only {len(unique_questions)} unique questions remain out of {num_questions} requested. "
-                           f"Total questions served for this topic: {topic_stats['total_questions_served']}. "
-                           f"Please try a different topic or reduce the number of questions."
-                }]
+            # Take exactly the requested number of questions
+            final_questions = final_questions[:num_questions]
             
-            # Take only the requested number of questions
-            final_questions = unique_questions[:num_questions]
-            
-            # Add questions to history
+            # Add questions to history for statistics (but don't limit future generation)
             history_manager.add_questions(topic, final_questions)
             
             # Add question numbers
@@ -322,62 +311,86 @@ class QuizGenerator:
         # Combine original and additional templates
         all_templates = available_questions + additional_templates
         
-        # Generate questions with variations to ensure uniqueness
+        # Generate unlimited questions with dynamic variations
+        import random
+        import time
+        
+        # Create even more question patterns for unlimited generation
+        question_patterns = [
+            f"What are the key aspects of {topic}?",
+            f"How does {topic} work in practice?",
+            f"Which factors influence {topic} implementation?",
+            f"What role does {topic} play in modern technology?",
+            f"How is {topic} typically implemented?",
+            f"What are the main benefits of using {topic}?",
+            f"What challenges commonly arise in {topic}?",
+            f"How has {topic} evolved over time?",
+            f"What are the practical applications of {topic}?",
+            f"How can {topic} performance be optimized?",
+            f"What makes {topic} effective?",
+            f"How does {topic} compare to alternatives?",
+            f"What skills are needed for {topic}?",
+            f"How does {topic} impact business operations?",
+            f"What are the security considerations in {topic}?",
+            f"How is {topic} integrated with other systems?",
+            f"What tools are commonly used with {topic}?",
+            f"How do you troubleshoot {topic} issues?",
+            f"What are the best practices for {topic}?",
+            f"How do you measure {topic} success?"
+        ]
+        
+        option_patterns = [
+            f"Core principles and fundamentals of {topic}",
+            f"Advanced techniques and methodologies in {topic}",
+            f"Practical applications and real-world uses of {topic}",
+            f"Industry standards and best practices for {topic}",
+            f"Emerging trends and future developments in {topic}",
+            f"Integration and compatibility aspects of {topic}",
+            f"Performance optimization strategies in {topic}",
+            f"Security and reliability considerations in {topic}",
+            f"Cost-effectiveness and efficiency in {topic}",
+            f"Scalability and maintenance of {topic} systems",
+            f"Quality assurance and testing in {topic}",
+            f"Documentation and training for {topic}",
+            f"Monitoring and analytics for {topic}",
+            f"Automation and workflow optimization in {topic}",
+            f"Compliance and regulatory aspects of {topic}"
+        ]
+        
         for i in range(1, num_questions + 1):
-            base_index = (i - 1) % len(all_templates)
-            base_q = all_templates[base_index]
+            # Use time-based seed for more randomness across different generations
+            random_seed = int(time.time() * 1000) + i
+            random.seed(random_seed)
             
-            # Create variations to ensure uniqueness
-            if i > len(all_templates):
-                variation_number = (i - 1) // len(all_templates) + 1
+            base_index = (i - 1) % len(all_templates)
+            
+            # Create dynamic variations for unlimited generation
+            if i > len(all_templates) or random.random() > 0.7:  # 30% chance to use template, 70% to create new
+                # Generate completely new questions
+                question_text = random.choice(question_patterns)
                 
-                # Simple level-based variations
-                variation_suffix = f" (Level {variation_number})"
+                # Create unique option sets
+                available_options = option_patterns.copy()
+                random.shuffle(available_options)
                 
-                # Create simple, clear questions for variations
-                question_variations = [
-                    f"What are the key aspects of {topic}?",
-                    f"How does {topic} work?",
-                    f"Which factors influence {topic}?",
-                    f"What role does {topic} play?",
-                    f"How is {topic} implemented?",
-                    f"What are the benefits of {topic}?",
-                    f"What challenges exist in {topic}?",
-                    f"How does {topic} evolve?",
-                    f"What are the applications of {topic}?",
-                    f"How is {topic} optimized?"
-                ]
-                
-                unique_question = question_variations[variation_number % len(question_variations)]
-                
-                # Create clear, meaningful options
-                option_variations = [
-                    f"Core principles and fundamentals of {topic}",
-                    f"Advanced techniques and methodologies in {topic}",
-                    f"Practical applications and real-world uses of {topic}",
-                    f"Industry standards and best practices for {topic}",
-                    f"Emerging trends and future developments in {topic}",
-                    f"Integration and compatibility with other technologies",
-                    f"Performance optimization and efficiency in {topic}",
-                    f"Security and reliability considerations in {topic}"
-                ]
-                
-                # Ensure we have enough options
-                option_count = len(option_variations)
                 unique_options = {
-                    "A": option_variations[(variation_number * 3) % option_count],
-                    "B": option_variations[(variation_number * 3 + 1) % option_count],
-                    "C": option_variations[(variation_number * 3 + 2) % option_count],
+                    "A": available_options[0] if len(available_options) > 0 else f"Basic concepts of {topic}",
+                    "B": available_options[1] if len(available_options) > 1 else f"Advanced techniques in {topic}",
+                    "C": available_options[2] if len(available_options) > 2 else f"Practical applications of {topic}",
                     "D": f"All of the above aspects of {topic}"
                 }
                 
+                variation_number = ((i - 1) // len(all_templates)) + 1
                 mock_q = {
-                    "question": f"{unique_question} (Level {variation_number})",
+                    "question": f"{question_text} (Variation {variation_number})",
                     "options": unique_options,
                     "correct_answer": "D",
-                    "explanation": f"This question covers multiple important aspects of {topic} including principles, techniques, applications, and best practices."
+                    "explanation": f"This question covers multiple important aspects of {topic} including various concepts, techniques, and applications."
                 }
             else:
+                # Use base template
+                base_q = all_templates[base_index]
+                
                 mock_q = base_q
                 
             
@@ -723,6 +736,18 @@ class QuizGenerator:
             history_manager.clear_topic_history(topic)
         else:
             history_manager.clear_all_history()
+    
+    def reset_topic_limits(self, topic: str = None):
+        """Reset any topic limits to allow unlimited quiz generation"""
+        # This function ensures unlimited quiz generation
+        # by clearing any restrictions that might prevent quiz generation
+        if topic:
+            self.clear_question_history(topic)
+        else:
+            self.clear_question_history()
+        
+        # Note: With the new unlimited generation system,
+        # this function is mainly for backwards compatibility
     
     def score_quiz(self, questions: List[Dict[str, Any]], user_answers: Dict[int, str], topic: str = None) -> Dict[str, Any]:
         """Score a quiz based on user answers"""

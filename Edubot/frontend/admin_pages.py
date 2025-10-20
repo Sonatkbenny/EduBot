@@ -195,7 +195,7 @@ def admin_dashboard():
         # Navigation menu
         page = st.radio(
             "Navigation",
-            ["📊 Analytics Dashboard", "👥 User Management", "📈 Reports"],
+            ["📊 Analytics Dashboard", "👥 User Management", "📈 Reports", "🔍 User Activities"],
             label_visibility="collapsed"
         )
         
@@ -256,7 +256,9 @@ def admin_dashboard():
                     chart_tabs = st.tabs(list(charts.keys()))
                     for i, (chart_name, chart) in enumerate(charts.items()):
                         with chart_tabs[i]:
-                            st.plotly_chart(chart, use_container_width=True)
+                            # Use unique key based on chart name to avoid ID conflicts
+                            chart_key = f"plotly_chart_{chart_name.lower().replace(' ', '_')}"
+                            st.plotly_chart(chart, use_container_width=True, key=chart_key)
                 else:
                     st.info("📈 No chart data available for the selected period.")
                     
@@ -293,6 +295,25 @@ def admin_dashboard():
             
         except ImportError:
             st.error("Report generation components not available")
+    
+    elif page == "🔍 User Activities":
+        # User activities section
+        st.markdown("## 🔍 User Activity Details")
+        
+        try:
+            from frontend.admin_components import create_user_activity_table
+            from utils.analytics import get_analytics_manager
+            
+            analytics_manager = get_analytics_manager()
+            
+            # Get user activity data
+            user_activities = analytics_manager.get_user_activity_details(days=30)
+            
+            # Display user activity table
+            create_user_activity_table(user_activities)
+            
+        except ImportError:
+            st.error("User activity components not available")
     
     elif page == "👥 User Management":
         manage_users()

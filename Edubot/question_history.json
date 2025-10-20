@@ -21,11 +21,15 @@
       "f70d081ed9f2629c919282befff77ce1",
       "3cbb6e0a3895b4f840ff0bc9a1a7b3a8",
       "7dbcaa8c466900d13af833af8c283695",
-      "3bd1897c458f58ab0380a2492eff57b5"
+      "3bd1897c458f58ab0380a2492eff57b5",
+      "4770a0ee1622d5320570372f567d9932",
+      "0c1a5e3c80561ba868ecb77d310c28c5",
+      "71232a253435f24cc7b6a26aadcf3a85",
+      "b45db976ffaa40f2dce9cfe9202853e8"
     ],
-    "question_count": 21,
-    "last_updated": "2025-09-04T01:51:54.752314",
-    "total_questions_served": 21,
+    "question_count": 25,
+    "last_updated": "2025-10-20T21:54:44.477124",
+    "total_questions_served": 25,
     "quiz_results": [
       {
         "timestamp": "2025-09-04T01:20:22.354166",
@@ -33,6 +37,14 @@
         "total_questions": 5,
         "correct_answers": 2,
         "percentage": 40.0,
+        "quiz_type": "multiple_choice"
+      },
+      {
+        "timestamp": "2025-10-20T21:54:44.477115",
+        "score": 1,
+        "total_questions": 5,
+        "correct_answers": 1,
+        "percentage": 20.0,
         "quiz_type": "multiple_choice"
       }
     ]
@@ -134,11 +146,62 @@
       "2d7554a58032711b2339d79a193ddb5b",
       "ce5636923c65849e7bc37df938a7153e",
       "7b1b72f9b9c70e0028dba5ebb22889ff",
-      "75329ea1f6c44e553eb2bfebf03c472d"
+      "75329ea1f6c44e553eb2bfebf03c472d",
+      "32aae54fb3d33fc77ae7ca4136734e68",
+      "f363d42c76cd558cbfbd75bbf01db79d",
+      "1a6831d332adffe95ef7c438b1ea5074",
+      "ba08e6c74dd70387a21272de9cf6cb05",
+      "f7b53ec51d622998405191aa03d7a096",
+      "e1e603dbb50427c996afdbc92f301a63"
+    ],
+    "question_count": 12,
+    "last_updated": "2025-09-09T09:46:05.530340",
+    "total_questions_served": 12,
+    "quiz_results": []
+  },
+  "Machine learning": {
+    "question_hashes": [
+      "b6545788334fcf54ba0a09928c0b5676",
+      "094a40a99a2be4eba5053a212a6f3c0e",
+      "44510e9b68af2f3bede51905ebd84cdf",
+      "ed6404577cac40b03c53a4e9d5bcdcf4",
+      "46cef250a9e59d11d3b99328cf41269a",
+      "847a507a960e60b6685f0094f7aa5e0a"
     ],
     "question_count": 6,
-    "last_updated": "2025-09-09T08:57:20.216080",
+    "last_updated": "2025-10-20T22:02:05.758507",
     "total_questions_served": 6,
-    "quiz_results": []
+    "quiz_results": [
+      {
+        "timestamp": "2025-10-20T22:02:05.758499",
+        "score": 1,
+        "total_questions": 5,
+        "correct_answers": 1,
+        "percentage": 20.0,
+        "quiz_type": "multiple_choice"
+      }
+    ]
+  },
+  "operating system": {
+    "question_hashes": [
+      "bc7439d5faf2eea9445c7dba9602fbf7",
+      "ec63d0de2369b88ba33fa1642effb5fe",
+      "230872cce23ee9abce70cacdd42eca90",
+      "6ea3eff11d188ca327f912f9e20cea1a",
+      "f749b75bf3b58bec46ad6639c1514041"
+    ],
+    "question_count": 5,
+    "last_updated": "2025-10-20T14:07:00.225655",
+    "total_questions_served": 5,
+    "quiz_results": [
+      {
+        "timestamp": "2025-10-20T14:07:00.225645",
+        "score": 1,
+        "total_questions": 5,
+        "correct_answers": 1,
+        "percentage": 20.0,
+        "quiz_type": "multiple_choice"
+      }
+    ]
   }
 }
